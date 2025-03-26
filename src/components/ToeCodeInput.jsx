@@ -12,6 +12,7 @@ export default function ToeCodeInput({
     speciesCode,
     isRecapture,
     setIsRecapture,
+    error,
 }) {
     // Initialize component state
     const [selected, setSelected] = useState({
@@ -504,9 +505,18 @@ export default function ToeCodeInput({
                 {speciesCode ? (
                     <label
                         htmlFor="my-modal-4"
-                        className="btn capitalize text-xl text-black bg-white border-asu-maroon border-2 font-normal hover:bg-white/50"
+                        className={
+                            error
+                                ? 'inline-block capitalize text-xl text-black bg-white border-2 border-red-600 p-2 rounded-xl font-normal hover:bg-white/50 cursor-pointer'
+                                : 'btn capitalize text-xl text-black bg-white border-asu-maroon border-2 font-normal hover:bg-white/50'
+                        }
                     >
-                        {toeCode ? `Toe-Clip Code: ${toeCode}` : 'Toe-Clip Code'}
+                        <div>
+                            {error && (
+                                <p className="text-[17px] text-red-600 font-bold mb-1">{error}</p>
+                            )}
+                            <p>{toeCode ? `Toe-Clip Code: ${toeCode}` : 'Toe-Clip Code'}</p>
+                        </div>
                     </label>
                 ) : (
                     <label className="btn capitalize text-xl text-black bg-white border-asu-maroon border-2 font-normal hover:bg-white/50">
@@ -514,13 +524,7 @@ export default function ToeCodeInput({
                     </label>
                 )}
 
-                <input
-                    type="checkbox"
-                    id="my-modal-4"
-                    className="
-          modal-toggle
-          "
-                />
+                <input type="checkbox" id="my-modal-4" className="modal-toggle" />
 
                 <motion.div className="modal z-40">
                     <div className="modal-box  w-11/12  max-w-sm bg-white border-asu-maroon border-2 flex flex-col items-center justify-between min-h-screen max-h-screen p-1">
