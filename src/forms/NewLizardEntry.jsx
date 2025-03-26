@@ -27,7 +27,7 @@ import {
 export default function NewLizardEntry() {
     const lizardErrors = {
         speciesCode: '',
-        fenceTrap: '',
+        trap: '',
         recapture: '',
         toeCode: '',
         svl: '',
@@ -77,10 +77,10 @@ export default function NewLizardEntry() {
     }, [speciesCode]);
 
     useEffect(() => {
-        if (continueAnyways && toeCode && svl && vtl && otl && mass && sex) {
+        if (!continueAnyways && toeCode && svl && vtl && otl && mass && sex) {
             setConfirmationModalIsOpen(true);
         }
-    }, [continueAnyways, toeCode, svl, vtl, otl, mass, sex]);
+    }, [continueAnyways]);
 
     const triggerLastEditUpdate = () => {
         setTriggerLastUpdate(true);
@@ -93,8 +93,11 @@ export default function NewLizardEntry() {
     }, []);
 
     useEffect(() => {
-        if (otl > vtl && Number(otl) && Number(vtl)) setOtl(vtl);
-    }, [vtl]);
+        if (Number(otl) && Number(vtl) && Number(otl) > Number(vtl)) {
+            setErrors({ otl: 'OTL must not be larger than VTL.' });
+            setOtl(vtl);
+        }
+    }, [vtl, otl]);
 
     useEffect(() => {
         if (!regenTail) setOtl('');
@@ -114,7 +117,7 @@ export default function NewLizardEntry() {
                 setValue={setTrap}
                 placeholder="Fence Trap"
                 options={fenceTraps}
-                error={errors.fenceTrap}
+                error={errors.trap}
             />
             <SingleCheckbox
                 prompt="Is it a recapture?"
@@ -127,6 +130,7 @@ export default function NewLizardEntry() {
                 speciesCode={speciesCode}
                 isRecapture={isRecapture}
                 setIsRecapture={setIsRecapture}
+                error={errors.toeCode}
             />
             <span>(select species first)</span>
             <NumberInput
@@ -189,49 +193,54 @@ export default function NewLizardEntry() {
                 value={comments}
                 setValue={setComments}
             />
-            <Button
-                prompt="Finished?"
-                clickHandler={() => {
-                    if (regenTail) {
-                        verifyForm(
-                            lizardErrors,
-                            {
-                                sex,
-                                mass,
-                                speciesCode,
-                                trap,
-                                svl,
-                                vtl,
-                                otl,
-                            },
-                            setNotification,
-                            setConfirmationModalIsOpen,
-                            setErrors,
-                            setContinueAnyways,
-                        );
-                    } else {
-                        verifyForm(
-                            lizardErrors,
-                            {
-                                sex,
-                                mass,
-                                speciesCode,
-                                trap,
-                                svl,
-                                vtl,
-                            },
-                            setNotification,
-                            setConfirmationModalIsOpen,
-                            setErrors,
-                            setContinueAnyways,
-                        );
-                    }
-                }}
-            />
+            {!continueAnyways && (
+                <Button
+                    prompt="Finished?"
+                    clickHandler={() => {
+                        if (regenTail) {
+                            verifyForm(
+                                lizardErrors,
+                                {
+                                    sex,
+                                    mass,
+                                    speciesCode,
+                                    toeCode,
+                                    trap,
+                                    svl,
+                                    vtl,
+                                    otl,
+                                },
+                                setNotification,
+                                setConfirmationModalIsOpen,
+                                setErrors,
+                                setContinueAnyways,
+                            );
+                        } else {
+                            verifyForm(
+                                lizardErrors,
+                                {
+                                    sex,
+                                    mass,
+                                    speciesCode,
+                                    toeCode,
+                                    trap,
+                                    svl,
+                                    vtl,
+                                },
+                                setNotification,
+                                setConfirmationModalIsOpen,
+                                setErrors,
+                                setContinueAnyways,
+                            );
+                        }
+                    }}
+                />
+            )}
             {continueAnyways && (
                 <div>
                     <p className="text-xl">Form has incomplete data, continue anyways?</p>
                     <Button
+                        className="text-xl font-semibold px-6 py-2 border-8 border-red-600 rounded-lg my-2 active:scale-90 transition"
                         prompt="Submit incomplete form"
                         clickHandler={() => {
                             toeCode === '' && setToeCode('N/A');
@@ -240,6 +249,7 @@ export default function NewLizardEntry() {
                             otl === '' && setOtl('N/A');
                             mass === '' && setMass('N/A');
                             sex === '' && setSex('U');
+                            setContinueAnyways(false);
                         }}
                     />
                 </div>
